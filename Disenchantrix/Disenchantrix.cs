@@ -24,20 +24,6 @@ namespace Disenchantrix {
         private static readonly TimeSpan MaxDelayForCastingComplete = TimeSpan.FromSeconds(4);
         private static readonly Stopwatch PulseTimer = new Stopwatch();
 
-        private static readonly HashSet<uint> Rods = new HashSet<uint>
-        {
-            6218, // Runed Copper Rod
-            6339, // Runed Silver Rod
-            11130, // Runed Golden Rod
-            11145, // Runed Truesilver Rod
-            16207, // Runed Arcanite Rod
-            22461, // Runed Fel Iron Rod
-            22462, // Runed Adamantite Rod
-            22463, // Runed Eternium Rod
-            44452, // Runed Titanium Rod
-            52723, // Runed Elementium Rod
-        };
-
         // ===========================================================
         // Fields
         // ===========================================================
@@ -189,10 +175,6 @@ namespace Disenchantrix {
 
         public static bool CanDisenchant() {
             if(!SpellManager.HasSpell(13262)) {
-                return false;
-            }
-
-            if(Me.BagItems.FirstOrDefault(i => Rods.Contains(i.Entry)) == null) {
                 return false;
             }
 
