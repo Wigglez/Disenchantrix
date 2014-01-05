@@ -121,7 +121,7 @@ namespace Disenchantrix {
             if(!IsDone() && _root == null) {
                 try {
                     _root = CreateBehaviorLogic();
-                    TreeHooks.Instance.InsertHook("Taxi_Check", 0, _root);
+                    TreeHooks.Instance.InsertHook("Combat_OOC", 0, _root);
                     _root.Start(null);
                     _root.Tick(null);
 
@@ -149,7 +149,7 @@ namespace Disenchantrix {
             }
 
             try {
-                TreeHooks.Instance.RemoveHook("Taxi_Check", _root);
+                TreeHooks.Instance.RemoveHook("Combat_OOC", _root);
                 _root = null;
             } catch(Exception e) {
                 // Restart on any exception.
