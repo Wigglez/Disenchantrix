@@ -30,9 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Honorbuddy, Version=2.5.8690.707, Culture=neutral, PublicKeyToken=50a565ab5c01ae50, processorArchitecture=x86">
+    <Reference Include="Honorbuddy, Version=2.5.9088.718, Culture=neutral, PublicKeyToken=50a565ab5c01ae50, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>D:\Games\Bots\Honorbuddy\HB DEVELOPMENT 2\Honorbuddy.exe</HintPath>
+      <HintPath>D:\Games\Bots\Honorbuddy\HB DEV\Honorbuddy.exe</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
@@ -46,7 +46,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="Tripper.Tools, Version=1.0.0.0, Culture=neutral, PublicKeyToken=c40611ce03f849a2, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>D:\Games\Bots\Honorbuddy\HB DEVELOPMENT 2\Tripper.Tools.dll</HintPath>
+      <HintPath>D:\Games\Bots\Honorbuddy\HB DEV\Tripper.Tools.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
