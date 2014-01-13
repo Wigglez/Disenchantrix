@@ -72,9 +72,11 @@ namespace Disenchantrix {
             var gui = new DisenchantrixGUI();
             gui.ShowDialog();
         }
-        
+
         public override void OnEnable() {
             try {
+                _root = CreateBehaviorLogic();
+                _root.Start(null);
                 CustomBlacklist.SweepTimer();
                 Lua.Events.AttachEvent("UI_ERROR_MESSAGE", HandleErrorMessage);
                 base.OnEnable();
@@ -102,7 +104,7 @@ namespace Disenchantrix {
                 CustomNormalLog("Shutdown complete.");
             }
         }
-        
+
         public override void Pulse() {
             if(!PulseTimer.IsRunning) {
                 PulseTimer.Start();
@@ -118,46 +120,20 @@ namespace Disenchantrix {
                 return;
             }
 
-            if(!IsDone() && _root == null) {
-                try {
-                    _root = CreateBehaviorLogic();
-                    TreeHooks.Instance.InsertHook("Combat_OOC", 0, _root);
-                    _root.Start(null);
-                    _root.Tick(null);
-
-                    // If the last status wasn't running, stop the tree, and restart it.
-                    if(_root.LastStatus != RunStatus.Running) {
-                        _root.Stop(null);
-                        _root.Start(null);
-                    }
-                } catch(Exception e) {
-                    // Restart on any exception.
-                    Logging.WriteException(e);
-
-                    if(_root == null) {
-                        throw;
-                    }
-
-                    _root.Stop(null);
-                    _root.Start(null);
-                    throw;
-                }
-            }
-
-            if(_root == null || !IsDone()) {
-                return;
-            }
+            if(IsDone()) return;
 
             try {
-                TreeHooks.Instance.RemoveHook("Combat_OOC", _root);
-                _root = null;
+                _root.Tick(null);
+
+                if(_root.LastStatus == RunStatus.Running) {
+                    return;
+                }
+
+                _root.Stop(null);
+                _root.Start(null);
             } catch(Exception e) {
                 // Restart on any exception.
-                Logging.WriteException(e);
-
-                if(_root == null) {
-                    throw;
-                }
+                CustomDiagnosticLog(e.StackTrace);
 
                 _root.Stop(null);
                 _root.Start(null);
@@ -171,6 +147,10 @@ namespace Disenchantrix {
 
         public static void CustomNormalLog(string message, params object[] args) {
             Logging.Write(Colors.DeepSkyBlue, "[Disenchantrix]: " + message, args);
+        }
+
+        public static void CustomDiagnosticLog(string message, params object[] args) {
+            Logging.WriteDiagnostic(Colors.DeepSkyBlue, "[Disenchantrix Diag]: " + message, args);
         }
 
         public static bool CanDisenchant() {
@@ -311,28 +291,28 @@ namespace Disenchantrix {
 
         private static Composite CreateBehaviorLogic() {
             return new PrioritySelector(
-                new Decorator(ctx => CanDisenchant() && Me.CurrentPendingCursorSpell == null, 
+                new Decorator(ctx => CanDisenchant() && Me.CurrentPendingCursorSpell == null,
                     new Sequence(
                         new Action(r => WoWMovement.MoveStop()),
                         new Action(r => CastDisenchant()),
                         new WaitContinue(TimeSpan.FromMilliseconds(500), ret => false, new ActionAlwaysSucceed())
                     )
                 ),
-                new Decorator(ctx =>Me.CurrentPendingCursorSpell != null && Me.CurrentPendingCursorSpell.Name == "Disenchant" && DisenchantableItem != null, 
+                new Decorator(ctx => Me.CurrentPendingCursorSpell != null && Me.CurrentPendingCursorSpell.Name == "Disenchant" && DisenchantableItem != null,
                     new Sequence(
                         new Action(r => DisenchantableItem.Use()),
                         new Action(r => CustomNormalLog("Disenchanting {0}", DisenchantableItem.Name)),
                         new WaitContinue(MaxDelayForCastingComplete, ret => false, new ActionAlwaysSucceed())
                     )
                 ),
-                new Action(delegate { 
-                    if(Me.CurrentPendingCursorSpell != null && Me.CurrentPendingCursorSpell.Name == "Disenchant" && DisenchantableItem == null) {
-                        SpellManager.StopCasting();
-                        return RunStatus.Success;
-                    }
+                new Action(delegate {
+                if(Me.CurrentPendingCursorSpell != null && Me.CurrentPendingCursorSpell.Name == "Disenchant" && DisenchantableItem == null) {
+                    SpellManager.StopCasting();
+                    return RunStatus.Success;
+                }
 
-                    return RunStatus.Failure;
-                })
+                return RunStatus.Failure;
+            })
             );
         }
     }
