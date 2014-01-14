@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Media;
@@ -178,17 +177,13 @@ namespace Disenchantrix {
                 return false;
             }
 
-            DisenchantableItem = FindDisenchantableItem();
-
-            if(DisenchantableItem == null) {
-                return false;
-            }
-
             if(LootFrame.Instance.IsVisible) {
                 return false;
             }
 
-            return true;
+            DisenchantableItem = FindDisenchantableItem();
+
+            return DisenchantableItem != null;
         }
 
         public static WoWItem FindDisenchantableItem() {
@@ -228,19 +223,19 @@ namespace Disenchantrix {
                 }
             }
 
-            if(ItemSettings.Instance.DisenchantPurple) {
-                if(ItemSettings.Instance.DisenchantSoulbound) {
-                    var carriedPurples = Me.CarriedItems.FirstOrDefault(i => i.IsValid && i.Quality == WoWItemQuality.Epic && BlacklistDoesNotContain(i));
+            if(!ItemSettings.Instance.DisenchantPurple) { return null; }
 
-                    if(carriedPurples != null && Me.BagItems.Contains(carriedPurples)) {
-                        return carriedPurples;
-                    }
-                } else {
-                    var carriedPurples = Me.CarriedItems.FirstOrDefault(i => i != null && i.IsValid && i.Quality == WoWItemQuality.Epic && !i.IsSoulbound && BlacklistDoesNotContain(i));
+            if(ItemSettings.Instance.DisenchantSoulbound) {
+                var carriedPurples = Me.CarriedItems.FirstOrDefault(i => i.IsValid && i.Quality == WoWItemQuality.Epic && BlacklistDoesNotContain(i));
 
-                    if(carriedPurples != null && Me.BagItems.Contains(carriedPurples)) {
-                        return carriedPurples;
-                    }
+                if(carriedPurples != null && Me.BagItems.Contains(carriedPurples)) {
+                    return carriedPurples;
+                }
+            } else {
+                var carriedPurples = Me.CarriedItems.FirstOrDefault(i => i != null && i.IsValid && i.Quality == WoWItemQuality.Epic && !i.IsSoulbound && BlacklistDoesNotContain(i));
+
+                if(carriedPurples != null && Me.BagItems.Contains(carriedPurples)) {
+                    return carriedPurples;
                 }
             }
 
@@ -291,28 +286,43 @@ namespace Disenchantrix {
 
         private static Composite CreateBehaviorLogic() {
             return new PrioritySelector(
-                new Decorator(ctx => CanDisenchant() && Me.CurrentPendingCursorSpell == null,
+                new Decorator(ctx => CanDisenchant(),
                     new Sequence(
-                        new Action(r => WoWMovement.MoveStop()),
-                        new Action(r => CastDisenchant()),
-                        new WaitContinue(TimeSpan.FromMilliseconds(500), ret => false, new ActionAlwaysSucceed())
+                        new DecoratorContinue(ctx => DisenchantableItem == null,
+                            new Sequence(
+                                new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell.Name == "Disenchant",
+                                    new Sequence(
+                                        new Action(r => CustomDiagnosticLog("No more items to disenchant, cancel pending cursor spell.")),
+                                        new Action(r => SpellManager.StopCasting()),
+                                        new Action(r => RunStatus.Success)
+                                    )
+                                ),
+                                new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell.Name != "Disenchant",
+                                    new Action(r => RunStatus.Failure)
+                                )
+                            )
+                        ),
+                        new DecoratorContinue(ctx => DisenchantableItem != null,
+                            new Sequence(
+                                new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell.Name == "Disenchant",
+                                    new Sequence(
+                                        new Action(r => CustomNormalLog("Disenchanting {0}", DisenchantableItem.Name)),
+                                        new Action(r => DisenchantableItem.Use()),
+                                        new WaitContinue(MaxDelayForCastingComplete, ret => false, new ActionAlwaysSucceed())
+                                    )
+                                ),
+                                new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell.Name != "Disenchant",
+                                    new Sequence(
+                                        new Action(r => WoWMovement.MoveStop()),
+                                        new Action(r => CastDisenchant()),
+                                        new WaitContinue(TimeSpan.FromMilliseconds(500), ret => false,
+                                        new ActionAlwaysSucceed())
+                                    )
+                                )
+                            )
+                        )
                     )
-                ),
-                new Decorator(ctx => Me.CurrentPendingCursorSpell != null && Me.CurrentPendingCursorSpell.Name == "Disenchant" && DisenchantableItem != null,
-                    new Sequence(
-                        new Action(r => DisenchantableItem.Use()),
-                        new Action(r => CustomNormalLog("Disenchanting {0}", DisenchantableItem.Name)),
-                        new WaitContinue(MaxDelayForCastingComplete, ret => false, new ActionAlwaysSucceed())
-                    )
-                ),
-                new Action(delegate {
-                if(Me.CurrentPendingCursorSpell != null && Me.CurrentPendingCursorSpell.Name == "Disenchant" && DisenchantableItem == null) {
-                    SpellManager.StopCasting();
-                    return RunStatus.Success;
-                }
-
-                return RunStatus.Failure;
-            })
+                )
             );
         }
     }
