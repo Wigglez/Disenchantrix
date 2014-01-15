@@ -284,46 +284,72 @@ namespace Disenchantrix {
             return FindDisenchantableItem() == null;
         }
 
+        // ===========================================================
+        // Inner and Anonymous Classes
+        // ===========================================================
+
         private static Composite CreateBehaviorLogic() {
-            return new PrioritySelector(
-                new Decorator(ctx => CanDisenchant(),
-                    new Sequence(
-                        new DecoratorContinue(ctx => DisenchantableItem == null,
-                            new Sequence(
-                                new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell.Name == "Disenchant",
-                                    new Sequence(
-                                        new Action(r => CustomDiagnosticLog("No more items to disenchant, cancel pending cursor spell.")),
-                                        new Action(r => SpellManager.StopCasting()),
-                                        new Action(r => RunStatus.Success)
-                                    )
-                                ),
-                                new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell == null,
-                                    new Sequence(
-                                        new Action(r => CustomNormalLog("RunStatus.Failure")),
-                                        new Action(r => RunStatus.Failure)
-                                    )
-                                )
-                            )
-                        ),
-                        new DecoratorContinue(ctx => DisenchantableItem != null,
-                            new Sequence(
-                                new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell == null || Me.CurrentPendingCursorSpell.Name != "Disenchant",
-                                    new Sequence(
-                                        new Action(r => CastDisenchant()),
-                                        new WaitContinue(TimeSpan.FromMilliseconds(50), ret => false, new ActionAlwaysSucceed())
-                                    )
-                                ),
-                                new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell.Name == "Disenchant",
-                                    new Sequence(
-                                        new Action(r => CustomNormalLog("Disenchanting {0}", DisenchantableItem.Name)),
-                                        new Action(r => WoWMovement.MoveStop()),
-                                        new Action(r => DisenchantableItem.Use()),
-                                        new WaitContinue(MaxDelayForCastingComplete, ret => false, new ActionAlwaysSucceed())
-                                    )
-                                )
-                            )
-                        )
-                    )
+            return new Decorator(ctx => CanDisenchant(),
+                new Sequence(
+                    NoDisenchantables(),
+                    Disenchantables()
+                )
+            );
+        }
+
+        private static Composite NoDisenchantables() {
+            return new Decorator(ctx => DisenchantableItem == null,
+                new Sequence(
+                    CursorActiveNoItems(),
+                    CursorInactiveNoItems()
+                )
+            );
+        }
+
+        private static Composite CursorActiveNoItems() {
+            return new Decorator(ctx => Me.CurrentPendingCursorSpell.Name == "Disenchant",
+                new Sequence(
+                    new Action(r => CustomDiagnosticLog("No more items to disenchant, cancel pending cursor spell.")),
+                    new Action(r => SpellManager.StopCasting()),
+                    new Action(r => RunStatus.Success)
+                )
+            );
+        }
+
+        private static Composite CursorInactiveNoItems() {
+            return new Decorator(ctx => Me.CurrentPendingCursorSpell == null,
+                new Sequence(
+                    new Action(r => CustomNormalLog("RunStatus.Failure")),
+                    new Action(r => RunStatus.Failure)
+                )
+            );
+        }
+
+        private static Composite Disenchantables() {
+            return new Decorator(ctx => DisenchantableItem != null,
+                new Sequence(
+                    CursorInactiveItems(),
+                    CursorActiveItems()
+                )
+            );
+        }
+
+        private static Composite CursorInactiveItems() {
+            return new Decorator(ctx => Me.CurrentPendingCursorSpell == null || Me.CurrentPendingCursorSpell.Name != "Disenchant",
+                new Sequence(
+                    new Action(r => CastDisenchant()),
+                    new WaitContinue(TimeSpan.FromMilliseconds(50), ret => false, new ActionAlwaysSucceed())
+                )
+            );
+        }
+     
+        private static Composite CursorActiveItems() {
+            return new Decorator(ctx => Me.CurrentPendingCursorSpell.Name == "Disenchant",
+                new Sequence(
+                    new Action(r => CustomNormalLog("Disenchanting {0}", DisenchantableItem.Name)),
+                    new Action(r => WoWMovement.MoveStop()),
+                    new Action(r => DisenchantableItem.Use()),
+                    new WaitContinue(MaxDelayForCastingComplete, ret => false, new ActionAlwaysSucceed())
                 )
             );
         }
