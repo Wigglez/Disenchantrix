@@ -288,6 +288,7 @@ namespace Disenchantrix {
             return new PrioritySelector(
                 new Decorator(ctx => CanDisenchant(),
                     new Sequence(
+                        new Action(ctx => CustomNormalLog("We got here")),
                         new DecoratorContinue(ctx => DisenchantableItem == null,
                             new Sequence(
                                 new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell.Name == "Disenchant",
