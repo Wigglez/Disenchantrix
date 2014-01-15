@@ -297,7 +297,7 @@ namespace Disenchantrix {
                                         new Action(r => RunStatus.Success)
                                     )
                                 ),
-                                new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell.Name != "Disenchant",
+                                new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell == null,
                                     new Action(r => RunStatus.Failure)
                                 )
                             )
@@ -312,7 +312,7 @@ namespace Disenchantrix {
                                         new Action(r => RunStatus.Success)
                                     )
                                 ),
-                                new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell.Name != "Disenchant",
+                                new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell == null,
                                     new Sequence(
                                         new Action(r => WoWMovement.MoveStop()),
                                         new Action(r => CastDisenchant()),
