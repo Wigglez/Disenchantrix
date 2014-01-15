@@ -302,8 +302,7 @@ namespace Disenchantrix {
             return new DecoratorContinue(ctx => DisenchantableItem == null,
                 new Sequence(
                     new Action(ctx => CustomDiagnosticLog("NoDisenchantables")),
-                    CursorActiveNoItems(),
-                    CursorInactiveNoItems()
+                    CursorActiveNoItems()
                 )
             );
         }
@@ -312,17 +311,7 @@ namespace Disenchantrix {
             return new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell.Name == "Disenchant",
                 new Sequence(
                     new Action(r => CustomDiagnosticLog("No more items to disenchant, cancel pending cursor spell.")),
-                    new Action(r => SpellManager.StopCasting()),
-                    new Action(r => RunStatus.Success)
-                )
-            );
-        }
-
-        private static Composite CursorInactiveNoItems() {
-            return new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell == null,
-                new Sequence(
-                    new Action(r => CustomDiagnosticLog("CursorInactiveNoItems")),
-                    new Action(r => RunStatus.Failure)
+                    new Action(r => SpellManager.StopCasting())
                 )
             );
         }
