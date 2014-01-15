@@ -72,6 +72,7 @@ namespace Disenchantrix {
             gui.ShowDialog();
         }
 
+        
         public override void OnEnable() {
             try {
                 _root = CreateBehaviorLogic();
