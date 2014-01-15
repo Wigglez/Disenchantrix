@@ -72,7 +72,6 @@ namespace Disenchantrix {
             gui.ShowDialog();
         }
 
-        
         public override void OnEnable() {
             try {
                 _root = CreateBehaviorLogic();
@@ -289,7 +288,6 @@ namespace Disenchantrix {
             return new PrioritySelector(
                 new Decorator(ctx => CanDisenchant(),
                     new Sequence(
-                        new Action(ctx => CustomNormalLog("We got here")),
                         new DecoratorContinue(ctx => DisenchantableItem == null,
                             new Sequence(
                                 new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell.Name == "Disenchant",
@@ -310,15 +308,16 @@ namespace Disenchantrix {
                                     new Sequence(
                                         new Action(r => CustomNormalLog("Disenchanting {0}", DisenchantableItem.Name)),
                                         new Action(r => DisenchantableItem.Use()),
-                                        new WaitContinue(MaxDelayForCastingComplete, ret => false, new ActionAlwaysSucceed())
+                                        new WaitContinue(MaxDelayForCastingComplete, ret => false, new ActionAlwaysSucceed()),
+                                        new Action(r => RunStatus.Success)
                                     )
                                 ),
                                 new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell.Name != "Disenchant",
                                     new Sequence(
                                         new Action(r => WoWMovement.MoveStop()),
                                         new Action(r => CastDisenchant()),
-                                        new WaitContinue(TimeSpan.FromMilliseconds(500), ret => false,
-                                        new ActionAlwaysSucceed())
+                                        new WaitContinue(TimeSpan.FromMilliseconds(500), ret => false, new ActionAlwaysSucceed()),
+                                        new Action(r => RunStatus.Success)
                                     )
                                 )
                             )
