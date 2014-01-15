@@ -109,7 +109,7 @@ namespace Disenchantrix {
                 PulseTimer.Start();
             }
 
-            if(PulseTimer.ElapsedMilliseconds < 500) {
+            if(PulseTimer.ElapsedMilliseconds < 200) {
                 return;
             }
 
@@ -316,7 +316,6 @@ namespace Disenchantrix {
                                     new Sequence(
                                         new Action(r => WoWMovement.MoveStop()),
                                         new Action(r => CastDisenchant()),
-                                        new WaitContinue(TimeSpan.FromMilliseconds(500), ret => false, new ActionAlwaysSucceed()),
                                         new Action(r => RunStatus.Success)
                                     )
                                 )
