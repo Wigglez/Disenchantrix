@@ -7,7 +7,6 @@ using Styx;
 using Styx.Common;
 using Styx.CommonBot;
 using Styx.CommonBot.Frames;
-using Styx.CommonBot.POI;
 using Styx.Plugins;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
@@ -310,8 +309,6 @@ namespace Disenchantrix {
                             new Sequence(
                                 new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell == null || Me.CurrentPendingCursorSpell.Name != "Disenchant",
                                     new Sequence(
-                                        new Action(r => CustomNormalLog("Current BotPoi = {0}", BotPoi.Current)),
-                                        new Action(r => WoWMovement.MoveStop()),
                                         new Action(r => CastDisenchant()),
                                         new WaitContinue(TimeSpan.FromMilliseconds(50), ret => false, new ActionAlwaysSucceed())
                                     )
@@ -319,6 +316,7 @@ namespace Disenchantrix {
                                 new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell.Name == "Disenchant",
                                     new Sequence(
                                         new Action(r => CustomNormalLog("Disenchanting {0}", DisenchantableItem.Name)),
+                                        new Action(r => WoWMovement.MoveStop()),
                                         new Action(r => DisenchantableItem.Use()),
                                         new WaitContinue(MaxDelayForCastingComplete, ret => false, new ActionAlwaysSucceed())
                                     )
