@@ -291,6 +291,7 @@ namespace Disenchantrix {
         private static Composite CreateBehaviorLogic() {
             return new Decorator(ctx => CanDisenchant(),
                 new Sequence(
+                    new Action(ctx => CustomDiagnosticLog("CreateBehaviorLogic")),
                     NoDisenchantables(),
                     Disenchantables()
                 )
@@ -300,6 +301,7 @@ namespace Disenchantrix {
         private static Composite NoDisenchantables() {
             return new Decorator(ctx => DisenchantableItem == null,
                 new Sequence(
+                    new Action(ctx => CustomDiagnosticLog("NoDisenchantables")),
                     CursorActiveNoItems(),
                     CursorInactiveNoItems()
                 )
@@ -319,7 +321,7 @@ namespace Disenchantrix {
         private static Composite CursorInactiveNoItems() {
             return new Decorator(ctx => Me.CurrentPendingCursorSpell == null,
                 new Sequence(
-                    new Action(r => CustomNormalLog("RunStatus.Failure")),
+                    new Action(r => CustomDiagnosticLog("CursorInactiveNoItems")),
                     new Action(r => RunStatus.Failure)
                 )
             );
@@ -328,6 +330,7 @@ namespace Disenchantrix {
         private static Composite Disenchantables() {
             return new Decorator(ctx => DisenchantableItem != null,
                 new Sequence(
+                    new Action(r => CustomDiagnosticLog("Disenchantables")),
                     CursorInactiveItems(),
                     CursorActiveItems()
                 )
@@ -337,6 +340,7 @@ namespace Disenchantrix {
         private static Composite CursorInactiveItems() {
             return new Decorator(ctx => Me.CurrentPendingCursorSpell == null || Me.CurrentPendingCursorSpell.Name != "Disenchant",
                 new Sequence(
+                    new Action(r => CustomDiagnosticLog("CursorInactiveItems")),
                     new Action(r => CastDisenchant()),
                     new WaitContinue(TimeSpan.FromMilliseconds(50), ret => false, new ActionAlwaysSucceed())
                 )
