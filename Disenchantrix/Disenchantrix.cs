@@ -298,25 +298,29 @@ namespace Disenchantrix {
                                     )
                                 ),
                                 new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell == null,
-                                    new Action(r => RunStatus.Success)
+                                    new Sequence(
+                                        new Action(r => CustomNormalLog("RunStatus.Failure")),
+                                        new Action(r => RunStatus.Failure)
+                                    )
                                 )
                             )
                         ),
                         new DecoratorContinue(ctx => DisenchantableItem != null,
                             new Sequence(
-                                new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell.Name == "Disenchant",
+                                new Action(r => CustomNormalLog("We have Disenchantable items.")),
+                                new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell == null || Me.CurrentPendingCursorSpell.Name != "Disenchant",
                                     new Sequence(
+                                        new Action(r => CustomNormalLog("Now we should cast Disenchant.")),
                                         new Action(r => WoWMovement.MoveStop()),
                                         new Action(r => CastDisenchant()),
-                                        new Action(r => RunStatus.Success)
+                                        new WaitContinue(TimeSpan.FromMilliseconds(500), ret => false, new ActionAlwaysSucceed())
                                     )
                                 ),
                                 new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell.Name == "Disenchant",
                                     new Sequence(
                                         new Action(r => CustomNormalLog("Disenchanting {0}", DisenchantableItem.Name)),
                                         new Action(r => DisenchantableItem.Use()),
-                                        new WaitContinue(MaxDelayForCastingComplete, ret => false, new ActionAlwaysSucceed()),
-                                        new Action(r => RunStatus.Success)
+                                        new WaitContinue(MaxDelayForCastingComplete, ret => false, new ActionAlwaysSucceed())
                                     )
                                 )
                             )
