@@ -309,7 +309,6 @@ namespace Disenchantrix {
                             new Sequence(
                                 new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell == null || Me.CurrentPendingCursorSpell.Name != "Disenchant",
                                     new Sequence(
-                                        new Action(r => CustomNormalLog("Now we should cast Disenchant.")),
                                         new Action(r => WoWMovement.MoveStop()),
                                         new Action(r => CastDisenchant()),
                                         new WaitContinue(TimeSpan.FromMilliseconds(50), ret => false, new ActionAlwaysSucceed())
