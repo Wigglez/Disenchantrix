@@ -289,13 +289,11 @@ namespace Disenchantrix {
         // ===========================================================
 
         private static Composite CreateBehaviorLogic() {
-            return new PrioritySelector(
-                new Decorator(ctx => CanDisenchant(),
-                    new Sequence(
-                        new Action(ctx => CustomDiagnosticLog("CreateBehaviorLogic")),
-                        NoDisenchantables(),
-                        Disenchantables()
-                    )
+            return new Decorator(ctx => CanDisenchant(),
+                new Sequence(
+                    new Action(ctx => CustomDiagnosticLog("CreateBehaviorLogic")),
+                    NoDisenchantables(),
+                    Disenchantables()
                 )
             );
         }
