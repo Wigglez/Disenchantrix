@@ -307,13 +307,12 @@ namespace Disenchantrix {
                         ),
                         new DecoratorContinue(ctx => DisenchantableItem != null,
                             new Sequence(
-                                new Action(r => CustomNormalLog("We have Disenchantable items.")),
                                 new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell == null || Me.CurrentPendingCursorSpell.Name != "Disenchant",
                                     new Sequence(
                                         new Action(r => CustomNormalLog("Now we should cast Disenchant.")),
                                         new Action(r => WoWMovement.MoveStop()),
                                         new Action(r => CastDisenchant()),
-                                        new WaitContinue(TimeSpan.FromMilliseconds(500), ret => false, new ActionAlwaysSucceed())
+                                        new WaitContinue(TimeSpan.FromMilliseconds(50), ret => false, new ActionAlwaysSucceed())
                                     )
                                 ),
                                 new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell.Name == "Disenchant",
