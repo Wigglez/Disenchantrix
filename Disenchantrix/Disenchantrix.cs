@@ -294,11 +294,11 @@ namespace Disenchantrix {
                                     new Sequence(
                                         new Action(r => CustomDiagnosticLog("No more items to disenchant, cancel pending cursor spell.")),
                                         new Action(r => SpellManager.StopCasting()),
-                                        new Action(r => RunStatus.Failure)
+                                        new Action(r => RunStatus.Success)
                                     )
                                 ),
                                 new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell == null,
-                                    new Action(r => RunStatus.Failure)
+                                    new Action(r => RunStatus.Success)
                                 )
                             )
                         ),
@@ -306,17 +306,17 @@ namespace Disenchantrix {
                             new Sequence(
                                 new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell.Name == "Disenchant",
                                     new Sequence(
+                                        new Action(r => WoWMovement.MoveStop()),
+                                        new Action(r => CastDisenchant()),
+                                        new Action(r => RunStatus.Success)
+                                    )
+                                ),
+                                new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell.Name == "Disenchant",
+                                    new Sequence(
                                         new Action(r => CustomNormalLog("Disenchanting {0}", DisenchantableItem.Name)),
                                         new Action(r => DisenchantableItem.Use()),
                                         new WaitContinue(MaxDelayForCastingComplete, ret => false, new ActionAlwaysSucceed()),
-                                        new Action(r => RunStatus.Failure)
-                                    )
-                                ),
-                                new DecoratorContinue(ctx => Me.CurrentPendingCursorSpell == null,
-                                    new Sequence(
-                                        new Action(r => WoWMovement.MoveStop()),
-                                        new Action(r => CastDisenchant()),
-                                        new Action(r => RunStatus.Failure)
+                                        new Action(r => RunStatus.Success)
                                     )
                                 )
                             )
