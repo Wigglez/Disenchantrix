@@ -300,8 +300,6 @@ namespace Disenchantrix {
 
                 CustomNormalLog("Disenchanting green item: {0}", greenItem.Name);
                 greenItem.Use();
-
-                break;
             }
         }
 
@@ -311,8 +309,6 @@ namespace Disenchantrix {
 
                 CustomNormalLog("Disenchanting blue item: {0}", blueItem.Name);
                 blueItem.Use();
-
-                break;
             }
         }
 
@@ -322,8 +318,6 @@ namespace Disenchantrix {
 
                 CustomNormalLog("Disenchanting purple item: {0}", purpleItem.Name);
                 purpleItem.Use();
-
-                break;
             }
         }
 
@@ -345,8 +339,6 @@ namespace Disenchantrix {
             DisenchantGreens();
             DisenchantBlues();
             DisenchantPurples();
-
-            ClearLists();
         }
 
         public static void ClearLists() {
@@ -401,7 +393,8 @@ namespace Disenchantrix {
                     new Action(ctx => CastDisenchant()),
                     new WaitContinue(TimeSpan.FromMilliseconds(50), ret => false, new ActionAlwaysSucceed()),
                     new Action(ctx => DisenchantItem()),
-                    new WaitContinue(MaxDelayForCastingComplete, ret => false, new ActionAlwaysSucceed())
+                    new WaitContinue(MaxDelayForCastingComplete, ret => false, new ActionAlwaysSucceed()),
+                    new Action(ctx => ClearLists())
                 )
             );
         }
