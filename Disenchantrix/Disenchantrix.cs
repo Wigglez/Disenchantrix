@@ -123,6 +123,8 @@ namespace Disenchantrix {
                 return;
             }
 
+            FindDisenchantables();
+
             if(IsDone()) {
                 if(StyxWoW.Me.CurrentPendingCursorSpell.Name == "Disenchant") {
                     SpellManager.StopCasting();
@@ -395,7 +397,6 @@ namespace Disenchantrix {
         private static Composite CreateBehaviorLogic() {
             return new Decorator(ctx => CanDisenchant(),
                 new Sequence(
-                    new Action(ctx => FindDisenchantables()),
                     new Action(ctx => CastDisenchant()),
                     new WaitContinue(TimeSpan.FromMilliseconds(50), ret => false, new ActionAlwaysSucceed()),
                     new Action(ctx => DisenchantItem()),
