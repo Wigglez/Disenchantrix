@@ -124,7 +124,7 @@ namespace Disenchantrix {
             FindDisenchantables();
 
             if(IsDone()) {
-                if(StyxWoW.Me.CurrentPendingCursorSpell.Name == "Disenchant") {
+                if(StyxWoW.Me.CurrentPendingCursorSpell != null && StyxWoW.Me.CurrentPendingCursorSpell.Name == "Disenchant") {
                     SpellManager.StopCasting();
                 }
 
@@ -224,13 +224,13 @@ namespace Disenchantrix {
                 }
             }
 
-            var count = 0;
+            //var count = 0;
 
             foreach(var item in disenchantableGreens) {
-                CustomDiagnosticLog("Added green item #{0} to disenchant list", count + 1);
+                //CustomDiagnosticLog("Added green item #{0} to disenchant list", count + 1);
                 DisenchantGreenList.Add(item);
 
-                count++;
+                //count++;
             }
         }
 
@@ -254,13 +254,13 @@ namespace Disenchantrix {
                 }
             }
 
-            var count = 0;
+            //var count = 0;
 
             foreach(var item in disenchantableBlues) {
-                CustomDiagnosticLog("Added blue item #{0} to disenchant list", count + 1);
+                //CustomDiagnosticLog("Added blue item #{0} to disenchant list", count + 1);
                 DisenchantBlueList.Add(item);
 
-                count++;
+                //count++;
             }
         }
 
@@ -284,13 +284,13 @@ namespace Disenchantrix {
                 }
             }
 
-            var count = 0;
+            //var count = 0;
 
             foreach(var item in disenchantablePurples) {
-                CustomDiagnosticLog("Added purple item #{0} to disenchant list", count + 1);
+                //CustomDiagnosticLog("Added purple item #{0} to disenchant list", count + 1);
                 DisenchantPurpleList.Add(item);
 
-                count++;
+                //count++;
             }
         }
 
@@ -300,6 +300,8 @@ namespace Disenchantrix {
 
                 CustomNormalLog("Disenchanting green item: {0}", greenItem.Name);
                 greenItem.Use();
+
+                break;
             }
         }
 
@@ -309,6 +311,8 @@ namespace Disenchantrix {
 
                 CustomNormalLog("Disenchanting blue item: {0}", blueItem.Name);
                 blueItem.Use();
+
+                break;
             }
         }
 
@@ -318,6 +322,8 @@ namespace Disenchantrix {
 
                 CustomNormalLog("Disenchanting purple item: {0}", purpleItem.Name);
                 purpleItem.Use();
+
+                break;
             }
         }
 
