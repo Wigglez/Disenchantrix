@@ -33,6 +33,10 @@ namespace Disenchantrix {
 
         public static WoWItem StoredItem;
 
+        public static List<WoWItem> DisenchantGreenList = new List<WoWItem>();
+        public static List<WoWItem> DisenchantBlueList = new List<WoWItem>();
+        public static List<WoWItem> DisenchantPurpleList = new List<WoWItem>();
+
         // ===========================================================
         // Constructors
         // ===========================================================
@@ -40,10 +44,6 @@ namespace Disenchantrix {
         // ===========================================================
         // Getter & Setter
         // ===========================================================
-
-        public static List<WoWItem> DisenchantGreenList { get; set; }
-        public static List<WoWItem> DisenchantBlueList { get; set; }
-        public static List<WoWItem> DisenchantPurpleList { get; set; }
 
         // ===========================================================
         // Methods for/from SuperClass/Interfaces
@@ -121,8 +121,6 @@ namespace Disenchantrix {
                 return;
             }
 
-            FindDisenchantables();
-
             if(IsDone()) {
                 if(StyxWoW.Me.CurrentPendingCursorSpell != null && StyxWoW.Me.CurrentPendingCursorSpell.Name == "Disenchant") {
                     SpellManager.StopCasting();
@@ -186,24 +184,6 @@ namespace Disenchantrix {
             return !StyxWoW.Me.IsDead && !StyxWoW.Me.IsGhost;
         }
 
-        public static void FindDisenchantables() {
-            if(DisenchantGreenList == null) {
-                DisenchantGreenList = new List<WoWItem>();
-            }
-
-            if(DisenchantBlueList == null) {
-                DisenchantBlueList = new List<WoWItem>();
-            }
-
-            if(DisenchantPurpleList == null) {
-                DisenchantPurpleList = new List<WoWItem>();
-            }
-
-            FindDisenchantable(WoWItemQuality.Uncommon);
-            FindDisenchantable(WoWItemQuality.Rare);
-            FindDisenchantable(WoWItemQuality.Epic);
-        }
-
         public static IEnumerable<WoWItem> FindDisenchantable(WoWItemQuality wowItemQuality) {
             return
                 from item in StyxWoW.Me.BagItems
@@ -218,6 +198,10 @@ namespace Disenchantrix {
         }
 
         public static void DisenchantGreens() {
+            if(FindDisenchantable(WoWItemQuality.Uncommon) == null) {
+                return;
+            }
+
             StoredItem = DisenchantGreenList[0];
 
             CustomNormalLog("Disenchanting green item: {0}", DisenchantGreenList[0].Name);
@@ -225,6 +209,9 @@ namespace Disenchantrix {
         }
 
         public static void DisenchantBlues() {
+            if(FindDisenchantable(WoWItemQuality.Rare) == null) {
+                return;
+            }
 
             StoredItem = DisenchantBlueList[0];
 
@@ -233,6 +220,10 @@ namespace Disenchantrix {
         }
 
         public static void DisenchantPurples() {
+            if(FindDisenchantable(WoWItemQuality.Epic) == null) {
+                return;
+            }
+
             StoredItem = DisenchantPurpleList[0];
 
             CustomNormalLog("Disenchanting purple item: {0}", DisenchantPurpleList[0].Name);
