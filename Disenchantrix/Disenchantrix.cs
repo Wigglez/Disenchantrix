@@ -344,6 +344,7 @@ namespace Disenchantrix {
         }
 
         public static void ClearLists() {
+            CustomDiagnosticLog("Clearing lists");
             DisenchantGreenList.Clear();
             DisenchantBlueList.Clear();
             DisenchantPurpleList.Clear();
