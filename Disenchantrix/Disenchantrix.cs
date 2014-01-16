@@ -199,126 +199,44 @@ namespace Disenchantrix {
                 DisenchantPurpleList = new List<WoWItem>();
             }
 
-            FindDisenchantableGreens();
-            FindDisenchantableBlues();
-            FindDisenchantablePurples();
+            FindDisenchantable(WoWItemQuality.Uncommon);
+            FindDisenchantable(WoWItemQuality.Rare);
+            FindDisenchantable(WoWItemQuality.Epic);
         }
 
-        public static void FindDisenchantableGreens() {
-            if(!ItemSettings.Instance.DisenchantGreen) {
-                CustomDiagnosticLog("Not disenchanting greens.");
-                return;
-            }
-
-            var disenchantableGreens = StyxWoW.Me.BagItems.Where(de => de.IsValid && !de.IsOpenable && de.Quality == WoWItemQuality.Uncommon && BlacklistDoesNotContain(de));
-
-            if(!ItemSettings.Instance.DisenchantSoulbound) {
-                disenchantableGreens = StyxWoW.Me.BagItems.Where(de => de.IsValid && !de.IsOpenable && de.Quality == WoWItemQuality.Uncommon && BlacklistDoesNotContain(de) && !de.IsSoulbound);
-
-                if(!ItemSettings.Instance.DisenchantWeapon) {
-                    disenchantableGreens = StyxWoW.Me.BagItems.Where(de => de.IsValid && !de.IsOpenable && de.Quality == WoWItemQuality.Uncommon && BlacklistDoesNotContain(de) && !de.IsSoulbound && !de.ItemInfo.IsWeapon);
-                }
-            } else {
-                if(!ItemSettings.Instance.DisenchantWeapon) {
-                    disenchantableGreens = StyxWoW.Me.BagItems.Where(de => de.IsValid && !de.IsOpenable && de.Quality == WoWItemQuality.Uncommon && BlacklistDoesNotContain(de) && !de.ItemInfo.IsWeapon);
-                }
-            }
-
-            //var count = 0;
-
-            foreach(var item in disenchantableGreens) {
-                //CustomDiagnosticLog("Added green item #{0} to disenchant list", count + 1);
-                DisenchantGreenList.Add(item);
-
-                //count++;
-            }
-        }
-
-        public static void FindDisenchantableBlues() {
-            if(!ItemSettings.Instance.DisenchantBlue) {
-                CustomDiagnosticLog("Not disenchanting blues.");
-                return;
-            }
-
-            var disenchantableBlues = StyxWoW.Me.BagItems.Where(de => de.IsValid && !de.IsOpenable && de.Quality == WoWItemQuality.Rare && BlacklistDoesNotContain(de));
-
-            if(!ItemSettings.Instance.DisenchantSoulbound) {
-                disenchantableBlues = StyxWoW.Me.BagItems.Where(de => de.IsValid && !de.IsOpenable && de.Quality == WoWItemQuality.Rare && BlacklistDoesNotContain(de) && !de.IsSoulbound);
-
-                if(!ItemSettings.Instance.DisenchantWeapon) {
-                    disenchantableBlues = StyxWoW.Me.BagItems.Where(de => de.IsValid && !de.IsOpenable && de.Quality == WoWItemQuality.Rare && BlacklistDoesNotContain(de) && !de.IsSoulbound && !de.ItemInfo.IsWeapon);
-                }
-            } else {
-                if(!ItemSettings.Instance.DisenchantWeapon) {
-                    disenchantableBlues = StyxWoW.Me.BagItems.Where(de => de.IsValid && !de.IsOpenable && de.Quality == WoWItemQuality.Rare && BlacklistDoesNotContain(de) && !de.ItemInfo.IsWeapon);
-                }
-            }
-
-            //var count = 0;
-
-            foreach(var item in disenchantableBlues) {
-                //CustomDiagnosticLog("Added blue item #{0} to disenchant list", count + 1);
-                DisenchantBlueList.Add(item);
-
-                //count++;
-            }
-        }
-
-        public static void FindDisenchantablePurples() {
-            if(!ItemSettings.Instance.DisenchantPurple) {
-                CustomDiagnosticLog("Not disenchanting purples.");
-                return;
-            }
-
-            var disenchantablePurples = StyxWoW.Me.BagItems.Where(de => de.IsValid && !de.IsOpenable && de.Quality == WoWItemQuality.Epic && BlacklistDoesNotContain(de));
-
-            if(!ItemSettings.Instance.DisenchantSoulbound) {
-                disenchantablePurples = StyxWoW.Me.BagItems.Where(de => de.IsValid && !de.IsOpenable && de.Quality == WoWItemQuality.Epic && BlacklistDoesNotContain(de) && !de.IsSoulbound);
-
-                if(!ItemSettings.Instance.DisenchantWeapon) {
-                    disenchantablePurples = StyxWoW.Me.BagItems.Where(de => de.IsValid && !de.IsOpenable && de.Quality == WoWItemQuality.Epic && BlacklistDoesNotContain(de) && !de.IsSoulbound && !de.ItemInfo.IsWeapon);
-                }
-            } else {
-                if(!ItemSettings.Instance.DisenchantWeapon) {
-                    disenchantablePurples = StyxWoW.Me.BagItems.Where(de => de.IsValid && !de.IsOpenable && de.Quality == WoWItemQuality.Epic && BlacklistDoesNotContain(de) && !de.ItemInfo.IsWeapon);
-                }
-            }
-
-            //var count = 0;
-
-            foreach(var item in disenchantablePurples) {
-                //CustomDiagnosticLog("Added purple item #{0} to disenchant list", count + 1);
-                DisenchantPurpleList.Add(item);
-
-                //count++;
-            }
+        public static IEnumerable<WoWItem> FindDisenchantable(WoWItemQuality wowItemQuality) {
+            return
+                from item in StyxWoW.Me.BagItems
+                where
+                    item.IsValid
+                    && !item.IsOpenable
+                    && (item.Quality == wowItemQuality)
+                    && (!item.IsSoulbound || ItemSettings.Instance.DisenchantSoulbound)
+                    && (!item.ItemInfo.IsWeapon || ItemSettings.Instance.DisenchantWeapon)
+                    && BlacklistDoesNotContain(item)
+                select item;
         }
 
         public static void DisenchantGreens() {
-            foreach(var greenItem in DisenchantGreenList) {
-                StoredItem = greenItem;
+            StoredItem = DisenchantGreenList[0];
 
-                CustomNormalLog("Disenchanting green item: {0}", greenItem.Name);
-                greenItem.Use();
-            }
+            CustomNormalLog("Disenchanting green item: {0}", DisenchantGreenList[0].Name);
+            DisenchantGreenList[0].Use();
         }
 
         public static void DisenchantBlues() {
-            foreach(var blueItem in DisenchantBlueList) {
-                StoredItem = blueItem;
 
-                CustomNormalLog("Disenchanting blue item: {0}", blueItem.Name);
-                blueItem.Use();
-            }
+            StoredItem = DisenchantBlueList[0];
+
+            CustomNormalLog("Disenchanting blue item: {0}", DisenchantBlueList[0].Name);
+            DisenchantBlueList[0].Use();
         }
 
         public static void DisenchantPurples() {
-            foreach(var purpleItem in DisenchantPurpleList) {
-                StoredItem = purpleItem;
+            StoredItem = DisenchantPurpleList[0];
 
-                CustomNormalLog("Disenchanting purple item: {0}", purpleItem.Name);
-                purpleItem.Use();
-            }
+            CustomNormalLog("Disenchanting purple item: {0}", DisenchantPurpleList[0].Name);
+            DisenchantPurpleList[0].Use();
         }
 
         public static void CastDisenchant() {
@@ -336,8 +254,20 @@ namespace Disenchantrix {
                 return;
             }
 
-            DisenchantGreens();
-            DisenchantBlues();
+            if(DisenchantGreenList.Count > 0) {
+                DisenchantGreens();
+                return;
+            }
+
+            if(DisenchantBlueList.Count > 0) {
+                DisenchantBlues();
+                return;
+            }
+
+            if(DisenchantPurpleList.Count <= 0) {
+                return;
+            }
+
             DisenchantPurples();
         }
 
