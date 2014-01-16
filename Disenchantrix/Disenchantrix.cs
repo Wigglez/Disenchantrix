@@ -202,6 +202,8 @@ namespace Disenchantrix {
                 return;
             }
 
+            DisenchantGreenList = FindDisenchantable(WoWItemQuality.Uncommon).ToList();
+
             StoredItem = DisenchantGreenList[0];
 
             CustomNormalLog("Disenchanting green item: {0}", DisenchantGreenList[0].Name);
@@ -213,6 +215,8 @@ namespace Disenchantrix {
                 return;
             }
 
+            DisenchantBlueList = FindDisenchantable(WoWItemQuality.Rare).ToList();
+
             StoredItem = DisenchantBlueList[0];
 
             CustomNormalLog("Disenchanting blue item: {0}", DisenchantBlueList[0].Name);
@@ -223,6 +227,8 @@ namespace Disenchantrix {
             if(FindDisenchantable(WoWItemQuality.Epic) == null) {
                 return;
             }
+
+            DisenchantPurpleList = FindDisenchantable(WoWItemQuality.Epic).ToList();
 
             StoredItem = DisenchantPurpleList[0];
 
