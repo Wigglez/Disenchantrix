@@ -339,6 +339,14 @@ namespace Disenchantrix {
             DisenchantGreens();
             DisenchantBlues();
             DisenchantPurples();
+
+            ClearLists();
+        }
+
+        public static void ClearLists() {
+            DisenchantGreenList.Clear();
+            DisenchantBlueList.Clear();
+            DisenchantPurpleList.Clear();
         }
 
         public static void HandleErrorMessage(object sender, LuaEventArgs args) {
