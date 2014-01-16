@@ -39,6 +39,13 @@ namespace Disenchantrix {
 
         [Setting]
         [DefaultValue(true)]
+        [Category("Item Type")]
+        [DisplayName("Disenchant Weapons")]
+        [Description("Toggles if Disenchantrix should disenchant weapons.")]
+        public bool DisenchantWeapon { get; set; }
+
+        [Setting]
+        [DefaultValue(true)]
         [Category("Item Quality")]
         [DisplayName("Disenchant Greens")]
         [Description("Toggles if Disenchantrix should disenchant green quality items.")]
