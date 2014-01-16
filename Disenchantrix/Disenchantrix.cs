@@ -41,8 +41,6 @@ namespace Disenchantrix {
         // Getter & Setter
         // ===========================================================
 
-        public static bool FoundItems { get; set; }
-
         public static List<WoWItem> DisenchantGreenList { get; set; }
         public static List<WoWItem> DisenchantBlueList { get; set; }
         public static List<WoWItem> DisenchantPurpleList { get; set; }
@@ -130,8 +128,6 @@ namespace Disenchantrix {
                     SpellManager.StopCasting();
                 }
 
-                FoundItems = false;
-
                 return;
             }
 
@@ -191,10 +187,6 @@ namespace Disenchantrix {
         }
 
         public static void FindDisenchantables() {
-            if(FoundItems) {
-                return;
-            }
-
             if(DisenchantGreenList == null) {
                 DisenchantGreenList = new List<WoWItem>();
             }
@@ -210,8 +202,6 @@ namespace Disenchantrix {
             FindDisenchantableGreens();
             FindDisenchantableBlues();
             FindDisenchantablePurples();
-
-            FoundItems = true;
         }
 
         public static void FindDisenchantableGreens() {
@@ -343,10 +333,6 @@ namespace Disenchantrix {
 
         public static void DisenchantItem() {
             if(StyxWoW.Me.CurrentPendingCursorSpell == null || StyxWoW.Me.CurrentPendingCursorSpell.Name != "Disenchant") {
-                return;
-            }
-
-            if(!FoundItems) {
                 return;
             }
 
