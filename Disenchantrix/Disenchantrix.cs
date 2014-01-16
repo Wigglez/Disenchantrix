@@ -332,7 +332,7 @@ namespace Disenchantrix {
         }
 
         public static void CastDisenchant() {
-            if(StyxWoW.Me.CurrentPendingCursorSpell.Name == "Disenchant") {
+            if(StyxWoW.Me.CurrentPendingCursorSpell != null) {
                 return;
             }
 
@@ -342,7 +342,7 @@ namespace Disenchantrix {
         }
 
         public static void DisenchantItem() {
-            if(StyxWoW.Me.CurrentPendingCursorSpell.Name != "Disenchant") {
+            if(StyxWoW.Me.CurrentPendingCursorSpell == null || StyxWoW.Me.CurrentPendingCursorSpell.Name != "Disenchant") {
                 return;
             }
 
