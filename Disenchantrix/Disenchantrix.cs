@@ -185,7 +185,9 @@ namespace Disenchantrix {
         }
 
         public static IEnumerable<WoWItem> FindDisenchantable(WoWItemQuality wowItemQuality) {
-            return
+            CustomDiagnosticLog("In FindDisenchantable");
+
+            var myItem =
                 from item in StyxWoW.Me.BagItems
                 where
                     item.IsValid
@@ -195,6 +197,10 @@ namespace Disenchantrix {
                     && (!item.ItemInfo.IsWeapon || ItemSettings.Instance.DisenchantWeapon)
                     && BlacklistDoesNotContain(item)
                 select item;
+
+            CustomDiagnosticLog("Found {0} in bags!", myItem);
+
+            return myItem;
         }
 
         public static void DisenchantGreens() {
@@ -206,8 +212,8 @@ namespace Disenchantrix {
 
             StoredItem = DisenchantGreenList[0];
 
-            CustomNormalLog("Disenchanting green item: {0}", DisenchantGreenList[0].Name);
-            DisenchantGreenList[0].Use();
+            CustomNormalLog("Disenchanting green item: {0}", StoredItem.Name);
+            StoredItem.Use();
         }
 
         public static void DisenchantBlues() {
@@ -219,8 +225,8 @@ namespace Disenchantrix {
 
             StoredItem = DisenchantBlueList[0];
 
-            CustomNormalLog("Disenchanting blue item: {0}", DisenchantBlueList[0].Name);
-            DisenchantBlueList[0].Use();
+            CustomNormalLog("Disenchanting blue item: {0}", StoredItem.Name);
+            StoredItem.Use();
         }
 
         public static void DisenchantPurples() {
@@ -232,8 +238,8 @@ namespace Disenchantrix {
 
             StoredItem = DisenchantPurpleList[0];
 
-            CustomNormalLog("Disenchanting purple item: {0}", DisenchantPurpleList[0].Name);
-            DisenchantPurpleList[0].Use();
+            CustomNormalLog("Disenchanting purple item: {0}", StoredItem.Name);
+            StoredItem.Use();
         }
 
         public static void CastDisenchant() {
