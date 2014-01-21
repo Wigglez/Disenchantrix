@@ -19,9 +19,7 @@ namespace Disenchantrix {
         // Constants
         // ===========================================================
 
-        public static int DisenchantId = 13262;
-
-        private static readonly TimeSpan MaxDelayForCastingComplete = TimeSpan.FromSeconds(4);
+        public const int DisenchantId = 13262;
 
         // ===========================================================
         // Fields
@@ -31,11 +29,7 @@ namespace Disenchantrix {
 
         private static readonly Stopwatch PulseTimer = new Stopwatch();
 
-        public static WoWItem StoredItem;
-
-        public static List<WoWItem> DisenchantGreenList = new List<WoWItem>();
-        public static List<WoWItem> DisenchantBlueList = new List<WoWItem>();
-        public static List<WoWItem> DisenchantPurpleList = new List<WoWItem>();
+        private static readonly TimeSpan MaxDelayForCastingComplete = TimeSpan.FromSeconds(ItemSettings.Instance.DisenchantDelay);
 
         // ===========================================================
         // Constructors
@@ -44,6 +38,14 @@ namespace Disenchantrix {
         // ===========================================================
         // Getter & Setter
         // ===========================================================
+
+        public static WoWItem StoredItem { get; set; }
+
+        public static List<WoWItem> DisenchantGreenList { get; set; }
+        public static List<WoWItem> DisenchantBlueList { get; set; }
+        public static List<WoWItem> DisenchantPurpleList { get; set; }
+
+        public static bool Finished { get; set; }
 
         // ===========================================================
         // Methods for/from SuperClass/Interfaces
@@ -121,9 +123,20 @@ namespace Disenchantrix {
                 return;
             }
 
-            if(IsDone()) {
-                if(StyxWoW.Me.CurrentPendingCursorSpell != null && StyxWoW.Me.CurrentPendingCursorSpell.Name == "Disenchant") {
-                    SpellManager.StopCasting();
+            if(Finished) {
+                if(ItemSettings.Instance.DisenchantGreen && FindDisenchantable(WoWItemQuality.Uncommon).Any()) {
+                    CustomNormalLog("Found new green item, proceeding to disenchant.");
+                    Finished = false;
+                }
+
+                if(ItemSettings.Instance.DisenchantBlue && FindDisenchantable(WoWItemQuality.Rare).Any()) {
+                    CustomNormalLog("Found new blue item, proceeding to disenchant.");
+                    Finished = false;
+                }
+
+                if(ItemSettings.Instance.DisenchantPurple && FindDisenchantable(WoWItemQuality.Epic).Any()) {
+                    CustomNormalLog("Found new purple item, proceeding to disenchant.");
+                    Finished = false;
                 }
 
                 return;
@@ -161,7 +174,7 @@ namespace Disenchantrix {
         }
 
         public static bool CanDisenchant() {
-            if(!SpellManager.HasSpell(13262)) {
+            if(!SpellManager.HasSpell(DisenchantId)) {
                 return false;
             }
 
@@ -184,66 +197,8 @@ namespace Disenchantrix {
             return !StyxWoW.Me.IsDead && !StyxWoW.Me.IsGhost;
         }
 
-        public static IEnumerable<WoWItem> FindDisenchantable(WoWItemQuality wowItemQuality) {
-            CustomDiagnosticLog("In FindDisenchantable");
-
-            var myItem =
-                from item in StyxWoW.Me.BagItems
-                where
-                    item.IsValid
-                    && !item.IsOpenable
-                    && (item.Quality == wowItemQuality)
-                    && (!item.IsSoulbound || ItemSettings.Instance.DisenchantSoulbound)
-                    && (!item.ItemInfo.IsWeapon || ItemSettings.Instance.DisenchantWeapon)
-                    && BlacklistDoesNotContain(item)
-                select item;
-
-            CustomDiagnosticLog("Found {0} in bags!", myItem);
-
-            return myItem;
-        }
-
-        public static void DisenchantGreens() {
-            if(FindDisenchantable(WoWItemQuality.Uncommon) == null) {
-                return;
-            }
-
-            DisenchantGreenList = FindDisenchantable(WoWItemQuality.Uncommon).ToList();
-
-            StoredItem = DisenchantGreenList[0];
-
-            CustomNormalLog("Disenchanting green item: {0}", StoredItem.Name);
-            StoredItem.Use();
-        }
-
-        public static void DisenchantBlues() {
-            if(FindDisenchantable(WoWItemQuality.Rare) == null) {
-                return;
-            }
-
-            DisenchantBlueList = FindDisenchantable(WoWItemQuality.Rare).ToList();
-
-            StoredItem = DisenchantBlueList[0];
-
-            CustomNormalLog("Disenchanting blue item: {0}", StoredItem.Name);
-            StoredItem.Use();
-        }
-
-        public static void DisenchantPurples() {
-            if(FindDisenchantable(WoWItemQuality.Epic) == null) {
-                return;
-            }
-
-            DisenchantPurpleList = FindDisenchantable(WoWItemQuality.Epic).ToList();
-
-            StoredItem = DisenchantPurpleList[0];
-
-            CustomNormalLog("Disenchanting purple item: {0}", StoredItem.Name);
-            StoredItem.Use();
-        }
-
         public static void CastDisenchant() {
-            if(StyxWoW.Me.CurrentPendingCursorSpell != null) {
+            if(StyxWoW.Me.CurrentPendingCursorSpell != null && StyxWoW.Me.CurrentPendingCursorSpell.Name == "Disenchant") {
                 return;
             }
 
@@ -257,31 +212,97 @@ namespace Disenchantrix {
                 return;
             }
 
-            if(DisenchantGreenList.Count > 0) {
+            if(DisenchantGreenList == null) {
+                DisenchantGreenList = new List<WoWItem>();
+            }
+
+            if(DisenchantBlueList == null) {
+                DisenchantBlueList = new List<WoWItem>();
+            }
+
+            if(DisenchantPurpleList == null) {
+                DisenchantPurpleList = new List<WoWItem>();
+            }
+
+            DisenchantGreenList.Clear();
+            DisenchantBlueList.Clear();
+            DisenchantPurpleList.Clear();
+
+            DisenchantGreenList = FindDisenchantable(WoWItemQuality.Uncommon).ToList();
+            DisenchantBlueList = FindDisenchantable(WoWItemQuality.Rare).ToList();
+            DisenchantPurpleList = FindDisenchantable(WoWItemQuality.Epic).ToList();
+
+            if(ItemSettings.Instance.DisenchantGreen && DisenchantGreenList.Count > 0) {
                 DisenchantGreens();
                 return;
             }
 
-            if(DisenchantBlueList.Count > 0) {
+            if(ItemSettings.Instance.DisenchantBlue && DisenchantBlueList.Count > 0) {
                 DisenchantBlues();
                 return;
             }
 
-            if(DisenchantPurpleList.Count <= 0) {
+            if(ItemSettings.Instance.DisenchantPurple && DisenchantPurpleList.Count > 0) {
+                DisenchantPurples();
                 return;
             }
 
-            DisenchantPurples();
+            Finished = true;
         }
 
-        public static void ClearLists() {
-            CustomDiagnosticLog("Clearing lists");
-            DisenchantGreenList.Clear();
-            DisenchantBlueList.Clear();
-            DisenchantPurpleList.Clear();
+
+        // ===========================================================
+        // Inner and Anonymous Classes
+        // ===========================================================
+
+        private static Composite CreateBehaviorLogic() {
+            return new Decorator(ctx => CanDisenchant(),
+                new Sequence(
+                    new Action(ctx => CastDisenchant()),
+                    new WaitContinue(TimeSpan.FromMilliseconds(50), ret => false, new ActionAlwaysSucceed()),
+                    new Action(ctx => DisenchantItem()),
+                    new WaitContinue(MaxDelayForCastingComplete, ret => false, new ActionAlwaysSucceed())
+                )
+            );
         }
 
-        public static void HandleErrorMessage(object sender, LuaEventArgs args) {
+        private static IEnumerable<WoWItem> FindDisenchantable(WoWItemQuality wowItemQuality) {
+            var disenchantableItems =
+                from item in StyxWoW.Me.BagItems
+                where
+                    item.IsValid
+                    && !item.IsOpenable
+                    && (item.Quality == wowItemQuality)
+                    && (!item.IsSoulbound || ItemSettings.Instance.DisenchantSoulbound)
+                    && (!item.ItemInfo.IsWeapon || ItemSettings.Instance.DisenchantWeapon)
+                    && BlacklistDoesNotContain(item)
+                select item;
+
+            return disenchantableItems;
+        }
+
+        private static void DisenchantGreens() {
+            StoredItem = DisenchantGreenList[0];
+
+            CustomNormalLog("Disenchanting green item: {0}", StoredItem.Name);
+            StoredItem.Use();
+        }
+
+        private static void DisenchantBlues() {
+            StoredItem = DisenchantBlueList[0];
+
+            CustomNormalLog("Disenchanting blue item: {0}", StoredItem.Name);
+            StoredItem.Use();
+        }
+
+        private static void DisenchantPurples() {
+            StoredItem = DisenchantPurpleList[0];
+
+            CustomNormalLog("Disenchanting purple item: {0}", StoredItem.Name);
+            StoredItem.Use();
+        }
+
+        private static void HandleErrorMessage(object sender, LuaEventArgs args) {
             var errorMessage = args.Args[0].ToString();
 
             var localizedCantBeDisenchanted = Lua.GetReturnVal<string>("return SPELL_FAILED_CANT_BE_DISENCHANTED", 0);
@@ -290,6 +311,10 @@ namespace Disenchantrix {
 
             if(!errorMessage.Equals(localizedLowEnchantingSkill) && !errorMessage.Equals(localizedCantBeDisenchanted) &&
                 !errorMessage.Equals(localizedItemLocked)) {
+                return;
+            }
+
+            if(StoredItem == null) {
                 return;
             }
 
@@ -308,28 +333,8 @@ namespace Disenchantrix {
             }
         }
 
-        public static bool BlacklistDoesNotContain(WoWItem i) {
-            return !CustomBlacklist.ContainsEntry((int)i.Entry) && BlacklistDatabase.Instance.BlacklistedItems.All(b => b.Entry != i.Entry);
-        }
-
-        public static bool IsDone() {
-            return DisenchantGreenList.Count == 0 && DisenchantBlueList.Count == 0 && DisenchantPurpleList.Count == 0;
-        }
-
-        // ===========================================================
-        // Inner and Anonymous Classes
-        // ===========================================================
-
-        private static Composite CreateBehaviorLogic() {
-            return new Decorator(ctx => CanDisenchant(),
-                new Sequence(
-                    new Action(ctx => CastDisenchant()),
-                    new WaitContinue(TimeSpan.FromMilliseconds(50), ret => false, new ActionAlwaysSucceed()),
-                    new Action(ctx => DisenchantItem()),
-                    new WaitContinue(MaxDelayForCastingComplete, ret => false, new ActionAlwaysSucceed()),
-                    new Action(ctx => ClearLists())
-                )
-            );
+        private static bool BlacklistDoesNotContain(WoWObject wowObject) {
+            return !CustomBlacklist.ContainsEntry((int)wowObject.Entry) && BlacklistDatabase.Instance.BlacklistedItems.All(blacklist => blacklist.Entry != wowObject.Entry);
         }
     }
 }

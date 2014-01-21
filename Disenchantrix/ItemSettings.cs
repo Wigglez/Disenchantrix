@@ -20,7 +20,7 @@ namespace Disenchantrix {
         // ===========================================================
         // Constructors
         // ===========================================================
-        public ItemSettings() : base(Path.Combine(Path.Combine(Utilities.AssemblyDirectory, "Settings"), string.Format(@"Settings\{0}\{1}.xml", "Disenchantrix", "ItemSettings"))) {
+        public ItemSettings() : base(Path.Combine(Path.Combine(Utilities.AssemblyDirectory, "Settings"), string.Format(@"{0}\{1}.xml", "Disenchantrix", "ItemSettings"))) {
             
         }
         
@@ -31,38 +31,47 @@ namespace Disenchantrix {
         public static ItemSettings Instance { get { return _instance ?? (_instance = new ItemSettings()); } }
 
         [Setting]
+        [DefaultValue(4)]
+        [Category("Tunables")]
+        [DisplayName("Disenchant Delay")]
+        [Description("Default: 4. The amount of time (in seconds) Disenchantrix waits to disenchant the next item.")]
+        public int DisenchantDelay { get; set; }
+
+        // Type
+        [Setting]
         [DefaultValue(false)]
         [Category("Item Type")]
         [DisplayName("Disenchant Soulbound")]
-        [Description("Toggles if Disenchantrix should disenchant soulbound items.")]
+        [Description("Default: False. Toggles if Disenchantrix should disenchant soulbound items.")]
         public bool DisenchantSoulbound { get; set; }
 
         [Setting]
         [DefaultValue(true)]
         [Category("Item Type")]
         [DisplayName("Disenchant Weapons")]
-        [Description("Toggles if Disenchantrix should disenchant weapons.")]
+        [Description("Default: True. Toggles if Disenchantrix should disenchant weapons.")]
         public bool DisenchantWeapon { get; set; }
 
+        // Quality
         [Setting]
         [DefaultValue(true)]
         [Category("Item Quality")]
         [DisplayName("Disenchant Greens")]
-        [Description("Toggles if Disenchantrix should disenchant green quality items.")]
+        [Description("Default: True. Toggles if Disenchantrix should disenchant green quality items.")]
         public bool DisenchantGreen { get; set; }
 
         [Setting]
         [DefaultValue(false)]
         [Category("Item Quality")]
         [DisplayName("Disenchant Blues")]
-        [Description("Toggles if Disenchantrix should disenchant blue quality items.")]
+        [Description("Default: False. Toggles if Disenchantrix should disenchant blue quality items.")]
         public bool DisenchantBlue { get; set; }
 
         [Setting]
         [DefaultValue(false)]
         [Category("Item Quality")]
         [DisplayName("Disenchant Purples")]
-        [Description("Toggles if Disenchantrix should disenchant purple quality items.")]
+        [Description("Default: False. Toggles if Disenchantrix should disenchant purple quality items.")]
         public bool DisenchantPurple { get; set; }
 
         // ===========================================================
