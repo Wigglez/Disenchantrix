@@ -125,17 +125,17 @@ namespace Disenchantrix {
 
             if(Finished) {
                 if(ItemSettings.Instance.DisenchantGreen && FindDisenchantable(WoWItemQuality.Uncommon).Any()) {
-                    CustomNormalLog("Found new green item, proceeding to disenchant.");
+                    CustomNormalLog("Found new green item.");
                     Finished = false;
                 }
 
                 if(ItemSettings.Instance.DisenchantBlue && FindDisenchantable(WoWItemQuality.Rare).Any()) {
-                    CustomNormalLog("Found new blue item, proceeding to disenchant.");
+                    CustomNormalLog("Found new blue item.");
                     Finished = false;
                 }
 
                 if(ItemSettings.Instance.DisenchantPurple && FindDisenchantable(WoWItemQuality.Epic).Any()) {
-                    CustomNormalLog("Found new purple item, proceeding to disenchant.");
+                    CustomNormalLog("Found new purple item.");
                     Finished = false;
                 }
 
@@ -259,9 +259,9 @@ namespace Disenchantrix {
             return new Decorator(ctx => CanDisenchant(),
                 new Sequence(
                     new Action(ctx => CastDisenchant()),
-                    new WaitContinue(TimeSpan.FromMilliseconds(50), ret => false, new ActionAlwaysSucceed()),
+                    new WaitContinue(TimeSpan.FromMilliseconds(50), ctx => false, new ActionAlwaysSucceed()),
                     new Action(ctx => DisenchantItem()),
-                    new WaitContinue(MaxDelayForCastingComplete, ret => false, new ActionAlwaysSucceed())
+                    new WaitContinue(MaxDelayForCastingComplete, ctx => false, new ActionAlwaysSucceed())
                 )
             );
         }
@@ -284,21 +284,21 @@ namespace Disenchantrix {
         private static void DisenchantGreens() {
             StoredItem = DisenchantGreenList[0];
 
-            CustomNormalLog("Disenchanting green item: {0}", StoredItem.Name);
+            CustomNormalLog("Attempting to disenchant green item: {0}", StoredItem.Name);
             StoredItem.Use();
         }
 
         private static void DisenchantBlues() {
             StoredItem = DisenchantBlueList[0];
 
-            CustomNormalLog("Disenchanting blue item: {0}", StoredItem.Name);
+            CustomNormalLog("Attempting to disenchant blue item: {0}", StoredItem.Name);
             StoredItem.Use();
         }
 
         private static void DisenchantPurples() {
             StoredItem = DisenchantPurpleList[0];
 
-            CustomNormalLog("Disenchanting purple item: {0}", StoredItem.Name);
+            CustomNormalLog("Attempting to disenchant purple item: {0}", StoredItem.Name);
             StoredItem.Use();
         }
 
