@@ -39,13 +39,6 @@ namespace Disenchantrix {
 
         // Type
         [Setting]
-        [DefaultValue(false)]
-        [Category("Item Type")]
-        [DisplayName("Disenchant Soulbound")]
-        [Description("Default: False. Toggles if Disenchantrix should disenchant soulbound items.")]
-        public bool DisenchantSoulbound { get; set; }
-
-        [Setting]
         [DefaultValue(true)]
         [Category("Item Type")]
         [DisplayName("Disenchant Weapons")]

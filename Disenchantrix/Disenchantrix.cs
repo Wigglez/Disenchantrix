@@ -273,7 +273,6 @@ namespace Disenchantrix {
                     item.IsValid
                     && !item.IsOpenable
                     && (item.Quality == wowItemQuality)
-                    && (!item.IsSoulbound || ItemSettings.Instance.DisenchantSoulbound)
                     && (!item.ItemInfo.IsWeapon || ItemSettings.Instance.DisenchantWeapon)
                     && BlacklistDoesNotContain(item)
                 select item;
